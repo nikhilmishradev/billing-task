@@ -1,14 +1,20 @@
 @file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class,
+    ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class,
     ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class
 )
 
 package com.androidtechguru.tigihr
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.os.Message
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,6 +29,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Send
@@ -45,9 +52,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -59,6 +71,10 @@ import com.androidtechguru.tigihr.ui.theme.Divider
 import com.androidtechguru.tigihr.ui.theme.HeaderTextStyle
 import com.androidtechguru.tigihr.ui.theme.TigiHRBillingTaskTheme
 import com.androidtechguru.tigihr.ui.theme.TipSelectionButtons
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -93,7 +109,7 @@ fun CheckoutScreen(){
     ) {
         Text(text = "When", style = HeaderTextStyle)
         Spacer(modifier = Modifier.height(16.dp))
-        TextWithIcon(icon = Icons.Default.Send, text = "As Soon As Possible")
+        TextWithIcon(icon = painterResource(id = R.drawable.rocket_launch_64), text = "As Soon As Possible")
         Spacer(modifier = Modifier.height(16.dp))
         TextWithIconCheckbox(icon = Icons.Default.Person, text = "Contact less delivery (only for card payment)")
         Spacer(modifier = Modifier.height(16.dp))
@@ -115,11 +131,11 @@ fun CheckoutScreen(){
 }
 
 @Composable
-fun TextWithIcon(icon: ImageVector, text: String) {
+fun TextWithIcon(icon: Painter, text: String) {
 
     Row(verticalAlignment = Alignment.CenterVertically) {
         Icon(
-            imageVector = icon,
+            painter = icon,
             tint = AppColor,
             contentDescription = null, // Add content description as needed
             modifier = Modifier
@@ -197,11 +213,12 @@ fun DeliveryDetailsUI(){
 @Composable
 fun DeliveryDetailsEditTextUI(){
     var nameEt by remember { mutableStateOf("") }
-    var codeEt by remember { mutableStateOf("") }
+    var codeEt by remember { mutableStateOf("+91") }
     var mobileNoEt by remember { mutableStateOf("") }
     var deliveryAddressEt by remember { mutableStateOf("") }
     var addDeliveryNoteEt by remember { mutableStateOf("") }
-
+    var showError by remember { mutableStateOf(false) }
+val maxMobileNo =10
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
@@ -216,23 +233,30 @@ fun DeliveryDetailsEditTextUI(){
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 TextField(
-                    value = "+91",
-                    onValueChange = { codeEt = it },
+                    value = codeEt,
+                    onValueChange = { codeEt = it
+                                    showError=false},
                     label = { Text("Code") },
+                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                    placeholder = { Text("+91") },
+                    isError = showError,
                     maxLines = 1,
                     singleLine = true,
                     colors = TextFieldDefaults.textFieldColors(containerColor = Color.White),
                     modifier = Modifier
-                        .wrapContentSize()
+                        .width(72.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 TextField(
                     value = mobileNoEt,
                     colors = TextFieldDefaults.textFieldColors(containerColor = Color.White),
-                    onValueChange = { mobileNoEt = it },
+                    onValueChange = { mobileNoEt = it
+                        if (it.length <= maxMobileNo) mobileNoEt = it
+                    },
                     label = { Text("Mobile No.") },
+                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                    maxLines = 1,
                     modifier = Modifier
-                        .fillMaxWidth()
                         .weight(1f)
                 )
             }
@@ -267,17 +291,20 @@ fun EditTextField(label: String, hint: String="", textValue: String="", onValueC
 
 @Composable
 fun OffersUI(){
+    val context = LocalContext.current
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(text = "Offers", style = HeaderTextStyle,
-            modifier = Modifier.weight(1f))
+            modifier = Modifier .weight(1f))
+
         Text(text = "View Offer",
             fontWeight = FontWeight.ExtraBold,
             fontSize = 16.sp,
-            color = AppColor)
+            color = AppColor,
+            modifier = Modifier.clickable { showToast(context,"View Offer Banner...") })
     }
     Spacer(modifier = Modifier.height(16.dp))
 
@@ -287,12 +314,25 @@ fun OffersUI(){
         verticalAlignment = Alignment.CenterVertically
     ){
         var promoCodeEt by remember { mutableStateOf("") }
+        var isError by remember { mutableStateOf(false) }
+
 
         TextField(
             value = "",
-            onValueChange = { promoCodeEt },
+            onValueChange = { promoCodeEt = it
+                isError=false},
             label= { Text("Promo Code")},
             placeholder = { Text("") },
+            isError = isError,
+            supportingText ={
+                if (isError) {
+                    Text(
+                        text = "Field cannot be empty",
+                        color = Color.Red,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
+            },
             colors = TextFieldDefaults.textFieldColors(containerColor = Color.White),
             singleLine = true,
             modifier = Modifier
@@ -301,13 +341,19 @@ fun OffersUI(){
                 .weight(1f)
         )
         Button(
-            onClick = { },
+            onClick = {
+                if (promoCodeEt.isEmpty()) {
+                    isError = true // Show error if text is empty on button click
+                } else {}
+            },
             modifier = Modifier
                 .padding(start = 8.dp, end = 8.dp)
                 .wrapContentWidth()
         ) {
             Text(text = "Apply")
         }
+
+
     }
 }
 
@@ -344,7 +390,7 @@ fun InvoiceUI(){
         InvoiceText(label = "TOTAL ITEM PRICE", value = totalItemPrice,isBoldStyle = true)
 
         Spacer(modifier = Modifier.height(26.dp))
-        Text(text = "Total", fontSize = 20.sp, color = Color.LightGray)
+        Text(text = "Total", fontSize = 20.sp, color = Color.Gray)
         Text(text = "₹ $total", fontSize = 32.sp, style = HeaderTextStyle)
 
     }
@@ -377,6 +423,10 @@ fun SignInButton(){
         }
 }
 
+
+fun showToast(context: Context, message: String){
+    Toast.makeText(context,message,Toast.LENGTH_LONG).show()
+}
 
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
