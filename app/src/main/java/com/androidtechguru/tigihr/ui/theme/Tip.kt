@@ -15,6 +15,8 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldColors
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -42,7 +44,8 @@ fun TipSelectionButtons() {
 
             Button(
                 onClick = { selectedTipOption = tipOption },
-                modifier = Modifier.weight(1f)
+                modifier = Modifier
+                    .weight(1f)
                     .wrapContentHeight()
                     .wrapContentWidth(),
 //                shape = MaterialTheme.shapes.medium,
@@ -69,6 +72,7 @@ fun TipSelectionButtons() {
             value = customTip,
             onValueChange = { customTip = it },
             label = { Text("₹") },
+            colors = TextFieldDefaults.textFieldColors(containerColor = Color.White),
             maxLines = 1,
             modifier = Modifier
                 .weight(1f)

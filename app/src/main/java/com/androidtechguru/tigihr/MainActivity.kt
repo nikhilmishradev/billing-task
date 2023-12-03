@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -35,6 +36,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -46,6 +48,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -106,7 +109,8 @@ fun CheckoutScreen(){
         Divider()
 
         InvoiceUI()
-        Divider()
+
+        SignInButton()
     }
 }
 
@@ -207,24 +211,29 @@ fun DeliveryDetailsEditTextUI(){
             Spacer(modifier = Modifier.height(8.dp))
 
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.wrapContentWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 TextField(
-                    value = codeEt,
+                    value = "+91",
                     onValueChange = { codeEt = it },
                     label = { Text("Code") },
+                    maxLines = 1,
+                    singleLine = true,
+                    colors = TextFieldDefaults.textFieldColors(containerColor = Color.White),
                     modifier = Modifier
-                        .padding(end = 4.dp)
-                        .wrapContentWidth()
+                        .wrapContentSize()
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 TextField(
                     value = mobileNoEt,
+                    colors = TextFieldDefaults.textFieldColors(containerColor = Color.White),
                     onValueChange = { mobileNoEt = it },
                     label = { Text("Mobile No.") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
                 )
             }
             Spacer(modifier = Modifier.height(12.dp))
@@ -247,6 +256,7 @@ fun EditTextField(label: String, hint: String="", textValue: String="", onValueC
             onValueChange = onValueChanged,
             label= { Text(label)},
             placeholder = { Text(hint) },
+            colors = TextFieldDefaults.textFieldColors(containerColor = Color.White),
             singleLine = true,
             maxLines = 1,
             modifier = Modifier
@@ -269,7 +279,7 @@ fun OffersUI(){
             fontSize = 16.sp,
             color = AppColor)
     }
-    Spacer(modifier = Modifier.height(12.dp))
+    Spacer(modifier = Modifier.height(16.dp))
 
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -283,6 +293,7 @@ fun OffersUI(){
             onValueChange = { promoCodeEt },
             label= { Text("Promo Code")},
             placeholder = { Text("") },
+            colors = TextFieldDefaults.textFieldColors(containerColor = Color.White),
             singleLine = true,
             modifier = Modifier
                 .background(color = Color.White)
@@ -303,16 +314,16 @@ fun OffersUI(){
 @Composable
 fun TipUI() {
     Text(text = "Tip", style = HeaderTextStyle)
-    Spacer(modifier = Modifier.height(12.dp))
+    Spacer(modifier = Modifier.height(16.dp))
     Text(text = "Would you like to offer a Tip?", color = Color.Gray)
+    Spacer(modifier = Modifier.height(16.dp))
+
     Row(modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceAround,
         verticalAlignment = Alignment.CenterVertically
     ) {
 
         TipSelectionButtons()
-
-
     }
 }
 
@@ -320,22 +331,27 @@ fun TipUI() {
 fun InvoiceUI(){
     Text(text = "Invoice", style = HeaderTextStyle)
     Spacer(modifier = Modifier.height(16.dp))
+    var servicePrice = 195.40
+    var totalServicePrice = 195.40
+    var itemPrice = 14780.00
+    var totalItemPrice = 14780.00
+    var total = 14975.40
 
     Column(modifier = Modifier.padding(start = 8.dp)) {
-        InvoiceText(label = "Service Price", value = "195.40")
-        InvoiceText(label = "TOTAL SERVICE PRICE", value = "",isBoldStyle = true )
-        InvoiceText(label = "Item Price", value = "14780.00")
-        InvoiceText(label = "TOTAL ITEM PRICE", value = "",isBoldStyle = true)
+        InvoiceText(label = "Service Price", value = servicePrice)
+        InvoiceText(label = "TOTAL SERVICE PRICE", value = totalServicePrice,isBoldStyle = true )
+        InvoiceText(label = "Item Price", value = itemPrice)
+        InvoiceText(label = "TOTAL ITEM PRICE", value = totalItemPrice,isBoldStyle = true)
 
-        Spacer(modifier = Modifier.height(20.dp))
-        Text(text = "Total", fontSize = 20.sp)
-        Text(text = "₹ 14975.40", fontSize = 32.sp, style = HeaderTextStyle)
+        Spacer(modifier = Modifier.height(26.dp))
+        Text(text = "Total", fontSize = 20.sp, color = Color.LightGray)
+        Text(text = "₹ $total", fontSize = 32.sp, style = HeaderTextStyle)
 
     }
 }
 
 @Composable
-fun InvoiceText(label: String, value: String, isBoldStyle: Boolean= false){
+fun InvoiceText(label: String, value: Double, isBoldStyle: Boolean= false){
     val style = if(isBoldStyle) HeaderTextStyle else TextStyle(fontWeight = FontWeight.Medium, fontSize = 18.sp)
 
     Spacer(modifier = Modifier.height(8.dp))
@@ -347,60 +363,20 @@ fun InvoiceText(label: String, value: String, isBoldStyle: Boolean= false){
     }
 }
 
-
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BillingScreen(onBackPressed: () -> Unit={}) {
-    val billingItems = listOf(
-        "Item 1" to 20,
-        "Item 2" to 30,
-        "Item 3" to 15,
-        "Item 4" to 25
-    )
-    Column {
-        Scaffold(
-            topBar = {
-                BillingAppBar(title = "Checkout", onBackPressed = onBackPressed)
-            }){
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(10.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-//                    item {
-//                        Column(modifier = Modifier
-//                            .fillMaxSize()
-//                            .background(Color.White)
-//                            .padding(12.dp)) {
-//                            Text(text = "Invoice")
-//                        }
-//                    }
-                    items(billingItems) { (itemName, itemPrice) ->
-                        BillingItemRow(itemName, itemPrice)
-                        Spacer(modifier = Modifier.height(16.dp))
-                    }
-                }
-            }
-    }
-}
+fun SignInButton(){
+    Spacer(modifier = Modifier.height(24.dp))
 
-@Composable
-fun BillingItemRow(itemName: String, itemPrice: Int) {
-
-        Row(
+        Button(
+            onClick = { },
             modifier = Modifier
+                .padding(20.dp)
                 .fillMaxWidth()
-                .background(Color.White)
-                .padding(5.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(text = itemName)
-            Text(text = "₹ $itemPrice")
-    }
-
+            Text(text = "Sign In", textAlign = TextAlign.Center, fontSize = 20.sp)
+        }
 }
+
 
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {

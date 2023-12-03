@@ -79,14 +79,14 @@ fun Divider(
     color: Color = Color.Gray,
     thickness: Dp = 2.dp,
 ) {
-    Spacer(modifier = Modifier.height(8.dp))
+    Spacer(modifier = Modifier.height(20.dp))
     Surface(
         modifier = Modifier
             .height(thickness)
             .fillMaxWidth(),
         color = color.copy(alpha = 0.2f),
     ) {}
-    Spacer(modifier = Modifier.height(16.dp))
+    Spacer(modifier = Modifier.height(32.dp))
 
 }
 
