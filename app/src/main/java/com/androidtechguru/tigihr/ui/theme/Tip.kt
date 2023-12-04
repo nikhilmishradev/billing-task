@@ -1,5 +1,6 @@
-@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class,
-    ExperimentalMaterial3Api::class
+@file:OptIn(
+    ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class,
+    ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class
 )
 
 package com.androidtechguru.tigihr.ui.theme
@@ -7,6 +8,7 @@ package com.androidtechguru.tigihr.ui.theme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -21,6 +23,7 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 
 enum class TipOption(val amount: Int) {
@@ -35,17 +38,19 @@ fun TipSelectionButtons() {
     var selectedTipOption by remember { mutableStateOf(TipOption.NO_TIP) }
 
     Row(
-//        modifier = Modifier.padding(4.dp)
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
     ) {
         TipOption.values().forEach { tipOption ->
 
             val textColor = if (tipOption == selectedTipOption) Color.White else Color.Black
-            val backgroundColor = if (tipOption == selectedTipOption) MaterialTheme.colorScheme.primary else Color.LightGray
+            val backgroundColor =
+                if (tipOption == selectedTipOption) MaterialTheme.colorScheme.primary else Color.LightGray
 
             Button(
                 onClick = { selectedTipOption = tipOption },
                 modifier = Modifier
-                    .weight(1f)
                     .wrapContentHeight()
                     .wrapContentWidth(),
 //                shape = MaterialTheme.shapes.medium,
@@ -72,10 +77,12 @@ fun TipSelectionButtons() {
             value = customTip,
             onValueChange = { customTip = it },
             label = { Text("₹") },
+            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
             colors = TextFieldDefaults.textFieldColors(containerColor = Color.White),
             maxLines = 1,
             modifier = Modifier
-                .weight(1f)
+                .wrapContentWidth()
+                .wrapContentHeight()
         )
 
     }

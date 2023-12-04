@@ -5,6 +5,7 @@ package com.androidtechguru.tigihr.ui.theme
 
 import android.graphics.Paint.Align
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.shape.ZeroCornerSize
 import androidx.compose.material.*
@@ -33,20 +34,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun BillingAppBar(title: String, onBackPressed: () -> Unit={}) {
-    Surface(
-        color = MaterialTheme.colorScheme.onSurface,
-        contentColor = MaterialTheme.colorScheme.onSurface
-    ) {
-        Column {
-            // Shadow line
-            Divider(
-                color = Color.Gray,
-                thickness = 1.dp
-            )
-
-            // AppBar content
-            TopAppBar(
+fun BillingAppBar(title: String, onBackPressed: () -> Unit = {}) {
+    Scaffold(
+        // AppBar content
+        topBar = {
+            TopAppBar(title = {
+                Text(
+                    text = "Checkout",
+                    modifier = Modifier.fillMaxSize(),
+                    style = MaterialTheme.typography.bodyMedium,
+                    textAlign = TextAlign.Center
+                )
+            },
                 navigationIcon = {
                     IconButton(onClick = { onBackPressed() }) {
                         Icon(
@@ -54,23 +53,14 @@ fun BillingAppBar(title: String, onBackPressed: () -> Unit={}) {
                             contentDescription = "Back"
                         )
                     }
-                },
-                title = {
-                    Text(
-                        text = title,
-                        modifier = Modifier.fillMaxSize(),
-                        style = MaterialTheme.typography.bodyMedium,
-                        textAlign = TextAlign.Center
-                    )
-                },
-                modifier = Modifier
-                    .padding(horizontal = 0.dp)
+                }
             )
+        },
+        content = {
+
         }
-    }
+    )
 }
-
-
 
 //private val AppBarHeight = with(LocalDensity.current) { 56.dp.toPx().dp }
 
@@ -79,14 +69,14 @@ fun Divider(
     color: Color = Color.Gray,
     thickness: Dp = 2.dp,
 ) {
-    Spacer(modifier = Modifier.height(20.dp))
+    Spacer(modifier = Modifier.height(16.dp))
     Surface(
         modifier = Modifier
             .height(thickness)
             .fillMaxWidth(),
         color = color.copy(alpha = 0.2f),
     ) {}
-    Spacer(modifier = Modifier.height(32.dp))
+    Spacer(modifier = Modifier.height(20.dp))
 
 }
 
