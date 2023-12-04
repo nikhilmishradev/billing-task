@@ -3,6 +3,6 @@
 ![License](https://img.shields.io/badge/license-MIT-green)
 # Billing Screen with Jetpack Compose
 
-<img src="https://github.com/nikhilmishradev/billing-task/assets/39642193/e660f822-39a4-491a-8640-732d30d63c71" width="400" />
+<img src="https://github.com/nikhilmishradev/billing-task/assets/39642193/e660f822-39a4-491a-8640-732d30d63c71" width="40%" height="40%"/>
 
 
